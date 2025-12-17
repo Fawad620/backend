@@ -8,35 +8,18 @@ dotenv.config();
 
 const app = express();
 
-// CORS configuration for production
-const allowedOrigins = [
-  "https://chat-frontend-khaki.vercel.app",
-  process.env.FRONTEND_URL,
-];
-
-// Only allow localhost in development
-if (process.env.NODE_ENV === "development") {
-  allowedOrigins.push("http://localhost:3000");
-  allowedOrigins.push("http://localhost:5173");
-}
-
+// CORS configuration - Allow all origins
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or Postman)
-      if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg = "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-    credentials: true,
+    origin: "*", // Allow all origins
+    credentials: false, // Set to false when allowing all origins
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// Handle preflight requests explicitly
+app.options("*", cors());
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
