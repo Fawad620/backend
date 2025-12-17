@@ -11,7 +11,7 @@ const app = express();
 // CORS configuration for production
 const allowedOrigins = [
   "https://chat-frontend-khaki.vercel.app",
-  process.env.FRONTEND_URL, // Add this to your .env file
+  process.env.FRONTEND_URL,
 ];
 
 // Only allow localhost in development
@@ -38,8 +38,17 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "10mb" })); // Add payload limit
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Root endpoint - IMPORTANT!
+app.get("/", (req, res) => {
+  res.status(200).json({ 
+    status: "ok", 
+    message: "Chat API Server is running",
+    version: "1.0.0"
+  });
+});
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -51,7 +60,7 @@ app.use("/api/chat", chatRoutes);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: "Route not found" });
+  res.status(404).json({ error: "Route not found", path: req.path });
 });
 
 // Global error handler
@@ -64,31 +73,19 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Connect to database and start server
-const PORT = process.env.PORT || 4005;
-
-const startServer = async () => {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
-    });
-  } catch (error) {
-    console.error("Failed to start server:", error);
-    process.exit(1);
-  }
-};
-
-startServer();
-
-// Graceful shutdown
-process.on("SIGTERM", () => {
-  console.log("SIGTERM signal received: closing HTTP server");
-  process.exit(0);
+// Connect to database
+connectDB().catch(err => {
+  console.error("Database connection failed:", err);
 });
 
-process.on("SIGINT", () => {
-  console.log("SIGINT signal received: closing HTTP server");
-  process.exit(0);
-});
+// Export for Vercel serverless - THIS IS CRITICAL!
+export default app;
+
+// Local development server (won't run on Vercel)
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 4005;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+  });
+}
