@@ -19,5 +19,5 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
 app.use(cors({
-  origin: "http://localhost:5173", // Replace with your frontend port
+  origin: "https://chat-frontend-khaki.vercel.app/", // Replace with your frontend port
 }));
