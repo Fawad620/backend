@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import Chat from "../models/Chat.js";
 
 // Initialize the client once (can be outside the function)
-const genAI = new GoogleGenerativeAI('AIzaSyC2cfsp18dK3hneJbfnvrzqBnp98Ja8FdI');
+const genAI = new GoogleGenerativeAI('AIzaSyAOV74_yJbhK6fLFGpWhivrHXczTJIGJp8');
 
 export const chatWithGemini = async (req, res) => {
   const { message } = req.body;
